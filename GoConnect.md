@@ -979,7 +979,9 @@ GET  /api/me                      [JWT required]
 
 ## 10. Configuration Reference
 
-Copy `.env` and fill in all values before running:
+📖 **For detailed configuration information, see [docs/CONFIGURATION.md](docs/CONFIGURATION.md)**
+
+Copy `.env.example` to `.env` and fill in all values before running:
 
 ```env
 # ── Database ──────────────────────────────
