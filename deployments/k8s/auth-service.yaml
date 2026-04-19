@@ -4,7 +4,7 @@ metadata:
   name: auth-service
   namespace: goconnect
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: auth-service
@@ -13,6 +13,20 @@ spec:
       labels:
         app: auth-service
     spec:
+      nodeSelector:
+        node-role: services
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - auth-service
+              topologyKey: kubernetes.io/hostname
       containers:
       - name: auth-service
         image: goconnect-auth:latest
@@ -93,6 +107,141 @@ spec:
               key: log-level
         - name: AUTH_SERVICE_PORT
           value: "50051"
+        - name: TOTP_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: totp-encryption-key
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-password
+        - name: SMTP_HOST
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: smtp-host
+        - name: SMTP_PORT
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: smtp-port
+        - name: SMTP_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: smtp-username
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: smtp-password
+        - name: FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: from-email
+        - name: FROM_NAME
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: from-name
+        - name: OTP_LENGTH
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: otp-length
+        - name: OTP_MAX_VERIFY_ATTEMPTS
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: otp-max-verify-attempts
+        - name: OTP_MAX_RESEND_ATTEMPTS
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: otp-max-resend-attempts
+        - name: OTP_RESEND_COOLDOWN
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: otp-resend-cooldown
+        - name: OTP_BLOCK_DURATION
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: otp-block-duration
+        - name: RATE_LIMIT_REGISTRATION_IP
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: rate-limit-registration-ip
+        - name: RATE_LIMIT_REGISTRATION_EMAIL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: rate-limit-registration-email
+        - name: RATE_LIMIT_USERNAME_CHECK
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: rate-limit-username-check
+        - name: PENDING_REGISTRATION_TTL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: pending-registration-ttl
+        - name: UNVERIFIED_USER_CLEANUP_TTL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: unverified-user-cleanup-ttl
+        - name: DB_MAX_OPEN_CONNS
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: db-max-open-conns
+        - name: DB_MAX_IDLE_CONNS
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: db-max-idle-conns
+        - name: DB_CONN_MAX_LIFETIME
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: db-conn-max-lifetime
+        - name: DB_CONN_MAX_IDLE_TIME
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: db-conn-max-idle-time
+        - name: SERVER_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: server-host
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: auth-service-port
+        - name: RETRY_MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: retry-max-retries
+        - name: RETRY_INITIAL_BACKOFF
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: retry-initial-backoff
+        - name: RETRY_MAX_BACKOFF
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: retry-max-backoff
         resources:
           requests:
             memory: "256Mi"

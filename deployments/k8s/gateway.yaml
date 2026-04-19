@@ -4,7 +4,7 @@ metadata:
   name: gateway
   namespace: goconnect
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: gateway
@@ -13,6 +13,20 @@ spec:
       labels:
         app: gateway
     spec:
+      nodeSelector:
+        node-role: services
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - gateway
+              topologyKey: kubernetes.io/hostname
       containers:
       - name: gateway
         image: goconnect-gateway:latest
@@ -126,12 +140,36 @@ spec:
             configMapKeyRef:
               name: goconnect-config
               key: log-level
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-password
         - name: GATEWAY_PORT
-          value: "8080"
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: gateway-port
         - name: AUTH_SERVICE_HOST
-          value: "auth-service"
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: auth-service-host
         - name: AUTH_SERVICE_PORT
-          value: "50051"
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: auth-service-port
+        - name: SERVER_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: server-host
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: server-port
         resources:
           requests:
             memory: "256Mi"
@@ -176,7 +214,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: gateway
-  minReplicas: 3
+  minReplicas: 2
   maxReplicas: 10
   metrics:
   - type: Resource

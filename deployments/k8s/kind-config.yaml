@@ -3,12 +3,6 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: goconnect
 nodes:
 - role: control-plane
-  kubeadmConfigPatches:
-  - |
-    kind: InitConfiguration
-    nodeRegistration:
-      kubeletExtraArgs:
-        node-labels: "ingress-ready=true"
   extraPortMappings:
   - containerPort: 30080
     hostPort: 8080
@@ -22,3 +16,41 @@ nodes:
   - containerPort: 30379
     hostPort: 6379
     protocol: TCP
+  - containerPort: 30888
+    hostPort: 8888
+    protocol: TCP
+- role: worker
+  kubeadmConfigPatches:
+  - |
+    kind: JoinConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "node-role=traefik,ingress-ready=true"
+- role: worker
+  kubeadmConfigPatches:
+  - |
+    kind: JoinConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "node-role=services"
+- role: worker
+  kubeadmConfigPatches:
+  - |
+    kind: JoinConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "node-role=services"
+- role: worker
+  kubeadmConfigPatches:
+  - |
+    kind: JoinConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "node-role=postgres"
+- role: worker
+  kubeadmConfigPatches:
+  - |
+    kind: JoinConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "node-role=redis"
