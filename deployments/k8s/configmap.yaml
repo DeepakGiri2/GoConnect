@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: goconnect-config
+  namespace: goconnect
+data:
+  jwt-access-expiry: "15m"
+  jwt-refresh-expiry: "168h"
+  otp-expiry: "5m"
+  log-level: "info"
+  environment: "production"
+  google-redirect-url: "https://your-domain.com/api/auth/callback/google"
+  facebook-redirect-url: "https://your-domain.com/api/auth/callback/facebook"
+  github-redirect-url: "https://your-domain.com/api/auth/callback/github"

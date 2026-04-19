@@ -1,0 +1,29 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Auth Service" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="GoConnect" />
+    <working_directory value="$PROJECT_DIR$" />
+    <envs>
+      <env name="DATABASE_HOST" value="localhost" />
+      <env name="DATABASE_PORT" value="5432" />
+      <env name="DATABASE_NAME" value="goconnect" />
+      <env name="DATABASE_USER" value="postgres" />
+      <env name="DATABASE_PASSWORD" value="postgres" />
+      <env name="REDIS_HOST" value="localhost" />
+      <env name="REDIS_PORT" value="6379" />
+      <env name="JWT_SECRET" value="dev_jwt_secret" />
+      <env name="JWT_ACCESS_EXPIRY" value="15m" />
+      <env name="JWT_REFRESH_EXPIRY" value="168h" />
+      <env name="OTP_SECRET" value="dev_otp_secret" />
+      <env name="OTP_EXPIRY" value="5m" />
+      <env name="AUTH_SERVICE_PORT" value="50051" />
+      <env name="ENV" value="development" />
+      <env name="LOG_LEVEL" value="debug" />
+    </envs>
+    <kind value="PACKAGE" />
+    <package value="github.com/goconnect/cmd/auth" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/services/auth/cmd/main.go" />
+    <output_directory value="$PROJECT_DIR$/bin" />
+    <method v="2" />
+  </configuration>
+</component>

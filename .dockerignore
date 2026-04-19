@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Documentation
+*.md
+docs/
+
+# Build artifacts
+bin/
+*.exe
+
+# Test files
+*_test.go
+**/*_test.go
+
+# Development files
+.env
+.env.*.local
+
+# CI/CD
+.github/
+
+# Scripts (not needed in container)
+scripts/
+
+# Deployment configs (not needed in container)
+deployments/
+
+# Docker files (avoid recursive copy)
+build/
+Dockerfile*
+docker-compose*.yml
+.dockerignore

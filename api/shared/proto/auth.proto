@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "github.com/goconnect/api/shared/proto_gen/shared/proto";
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+  rpc ResendVerificationOTP(ResendOTPRequest) returns (ResendOTPResponse);
+  rpc GetBlockStatus(GetBlockStatusRequest) returns (GetBlockStatusResponse);
+  rpc SetupTOTP(SetupTOTPRequest) returns (SetupTOTPResponse);
+  rpc VerifyTOTP(VerifyTOTPRequest) returns (VerifyTOTPResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc GenerateOTP(GenerateOTPRequest) returns (GenerateOTPResponse);
+  rpc VerifyOTP(VerifyOTPRequest) returns (VerifyOTPResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+  rpc OAuthLogin(OAuthLoginRequest) returns (OAuthLoginResponse);
+  rpc CheckUsernameAvailability(CheckUsernameRequest) returns (CheckUsernameResponse);
+}
+
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message RegisterResponse {
+  bool success = 1;
+  string message = 2;
+  string email = 3;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  bool success = 1;
+  string message = 2;
+  string user_id = 3;
+  string username = 4;
+  string email = 5;
+  string access_token = 6;
+  string refresh_token = 7;
+  bool requires_totp = 8;
+  bool is_verified = 9;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  string user_id = 2;
+  string username = 3;
+  string email = 4;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  bool success = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message GenerateOTPRequest {
+  string email = 1;
+  string purpose = 2;
+}
+
+message GenerateOTPResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message VerifyOTPRequest {
+  string email = 1;
+  string otp = 2;
+}
+
+message VerifyOTPResponse {
+  bool success = 1;
+  string message = 2;
+  string user_id = 3;
+}
+
+message ResetPasswordRequest {
+  string email = 1;
+  string otp = 2;
+  string new_password = 3;
+}
+
+message ResetPasswordResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message OAuthLoginRequest {
+  string provider = 1;
+  string code = 2;
+}
+
+message OAuthLoginResponse {
+  bool success = 1;
+  string message = 2;
+  string user_id = 3;
+  string username = 4;
+  string email = 5;
+  string access_token = 6;
+  string refresh_token = 7;
+}
+
+message CheckUsernameRequest {
+  string username = 1;
+}
+
+message CheckUsernameResponse {
+  bool available = 1;
+}
+
+// New messages for email verification flow
+message VerifyEmailRequest {
+  string email = 1;
+  string otp = 2;
+}
+
+message VerifyEmailResponse {
+  bool success = 1;
+  string message = 2;
+  string user_id = 3;
+  string username = 4;
+  string email = 5;
+  string access_token = 6;
+  string refresh_token = 7;
+}
+
+message ResendOTPRequest {
+  string email = 1;
+}
+
+message ResendOTPResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetBlockStatusRequest {
+  string email = 1;
+}
+
+message GetBlockStatusResponse {
+  bool is_blocked = 1;
+  int64 remaining_seconds = 2;
+  int32 remaining_attempts = 3;
+}
+
+message SetupTOTPRequest {
+  string user_id = 1;
+}
+
+message SetupTOTPResponse {
+  bool success = 1;
+  string message = 2;
+  string secret = 3;
+  string qr_code = 4;
+  string issuer = 5;
+  string account_name = 6;
+}
+
+message VerifyTOTPRequest {
+  string username = 1;
+  string totp_code = 2;
+}
+
+message VerifyTOTPResponse {
+  bool success = 1;
+  string message = 2;
+  string access_token = 3;
+  string refresh_token = 4;
+}

@@ -1,0 +1,17 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Install dependencies
+COPY mock-oauth/package*.json ./
+RUN npm install
+
+# Copy mock OAuth server code
+COPY mock-oauth/ ./
+
+EXPOSE 9000 9001 9002
+
+CMD ["node", "server.js"]

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoConnect API Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .response-box {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .endpoint-card {
+            transition: all 0.2s;
+        }
+        .endpoint-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <h1 class="text-3xl font-bold text-gray-800">GoConnect API Tester</h1>
+                <div id="connectionStatus" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-100">
+                    <div class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
+                    <span class="text-sm font-medium text-yellow-700">Checking...</span>
+                </div>
+            </div>
+            <p class="text-gray-600">Quick verification tool for API endpoints</p>
+            
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Base URL</label>
+                    <input type="text" id="baseUrl" value="http://localhost:8080/api" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
+                    <input type="text" id="accessToken" placeholder="Auto-filled after login/register" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Refresh Token</label>
+                    <input type="text" id="refreshToken" placeholder="Auto-filled after login/register" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Register -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">🔐 Register</h3>
+                <input type="text" id="reg_username" placeholder="Username" 
+                       class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="email" id="reg_email" placeholder="Email" 
+                       class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="reg_password" placeholder="Password" 
+                       class="w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="register()" 
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition">
+                    Register
+                </button>
+            </div>
+
+            <!-- Login -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">🔓 Login</h3>
+                <input type="text" id="login_username" placeholder="Username" 
+                       class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="login_password" placeholder="Password" 
+                       class="w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="login()" 
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md transition">
+                    Login
+                </button>
+            </div>
+
+            <!-- Refresh Token -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">🔄 Refresh Token</h3>
+                <p class="text-sm text-gray-600 mb-3">Uses the refresh token from header</p>
+                <button onclick="refreshToken()" 
+                        class="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-md transition">
+                    Refresh Token
+                </button>
+            </div>
+
+            <!-- Check Username -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">✅ Check Username</h3>
+                <input type="text" id="check_username" placeholder="Username to check" 
+                       class="w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="checkUsername()" 
+                        class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-md transition">
+                    Check Availability
+                </button>
+            </div>
+
+            <!-- Forgot Password -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">📧 Forgot Password</h3>
+                <input type="email" id="forgot_email" placeholder="Email" 
+                       class="w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="forgotPassword()" 
+                        class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition">
+                    Send OTP
+                </button>
+            </div>
+
+            <!-- Verify OTP -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">🔢 Verify OTP</h3>
+                <input type="email" id="verify_email" placeholder="Email" 
+                       class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="verify_otp" placeholder="OTP Code" 
+                       class="w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="verifyOTP()" 
+                        class="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md transition">
+                    Verify OTP
+                </button>
+            </div>
+
+            <!-- Reset Password -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">🔑 Reset Password</h3>
+                <input type="email" id="reset_email" placeholder="Email" 
+                       class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="reset_otp" placeholder="OTP Code" 
+                       class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="reset_password" placeholder="New Password" 
+                       class="w-full px-3 py-2 mb-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="resetPassword()" 
+                        class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition">
+                    Reset Password
+                </button>
+            </div>
+
+            <!-- Get Current User -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">👤 Get Current User (Protected)</h3>
+                <p class="text-sm text-gray-600 mb-3">Requires access token</p>
+                <button onclick="getCurrentUser()" 
+                        class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium py-2 px-4 rounded-md transition">
+                    Get My Info
+                </button>
+            </div>
+
+            <!-- OAuth Google -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">🌐 OAuth - Google</h3>
+                <button onclick="initiateOAuth('google')" 
+                        class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition mb-2">
+                    Login with Google
+                </button>
+                <p class="text-xs text-gray-500">Opens auth URL in response</p>
+            </div>
+
+            <!-- OAuth GitHub -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">🐙 OAuth - GitHub</h3>
+                <button onclick="initiateOAuth('github')" 
+                        class="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-4 rounded-md transition mb-2">
+                    Login with GitHub
+                </button>
+                <p class="text-xs text-gray-500">Opens auth URL in response</p>
+            </div>
+
+            <!-- OAuth Facebook -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">📘 OAuth - Facebook</h3>
+                <button onclick="initiateOAuth('facebook')" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition mb-2">
+                    Login with Facebook
+                </button>
+                <p class="text-xs text-gray-500">Opens auth URL in response</p>
+            </div>
+
+            <!-- Health Check -->
+            <div class="endpoint-card bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">❤️ Health Check</h3>
+                <button onclick="healthCheck()" 
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition">
+                    Check Health
+                </button>
+            </div>
+        </div>
+
+        <!-- Response Section -->
+        <div class="mt-6 bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xl font-semibold text-gray-800">Response</h2>
+                <button onclick="clearResponse()" 
+                        class="px-4 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-md transition">
+                    Clear
+                </button>
+            </div>
+            <div id="response" class="response-box bg-gray-900 text-green-400 p-4 rounded-md min-h-[200px]">
+                Waiting for request...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const getBaseUrl = () => document.getElementById('baseUrl').value;
+        const getAccessToken = () => document.getElementById('accessToken').value;
+        const getRefreshToken = () => document.getElementById('refreshToken').value;
+
+        function displayResponse(data, status, endpoint) {
+            const responseDiv = document.getElementById('response');
+            const timestamp = new Date().toLocaleTimeString();
+            responseDiv.textContent = `[${timestamp}] ${endpoint}\nStatus: ${status}\n\n${JSON.stringify(data, null, 2)}`;
+            
+            if (data.access_token) {
+                document.getElementById('accessToken').value = data.access_token;
+            }
+            if (data.refresh_token) {
+                document.getElementById('refreshToken').value = data.refresh_token;
+            }
+        }
+
+        function displayError(error, endpoint) {
+            const responseDiv = document.getElementById('response');
+            const timestamp = new Date().toLocaleTimeString();
+            responseDiv.textContent = `[${timestamp}] ${endpoint}\nERROR: ${error.message || error}`;
+        }
+
+        async function makeRequest(endpoint, method = 'GET', body = null, useAuth = false) {
+            try {
+                const url = `${getBaseUrl()}${endpoint}`;
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                if (useAuth) {
+                    const token = getAccessToken();
+                    if (!token) {
+                        throw new Error('Access token is required. Please login first.');
+                    }
+                    options.headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(url, options);
+                const data = await response.json();
+                displayResponse(data, response.status, `${method} ${endpoint}`);
+            } catch (error) {
+                displayError(error, `${method} ${endpoint}`);
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('reg_username').value;
+            const email = document.getElementById('reg_email').value;
+            const password = document.getElementById('reg_password').value;
+            await makeRequest('/auth/register', 'POST', { username, email, password });
+        }
+
+        async function login() {
+            const username = document.getElementById('login_username').value;
+            const password = document.getElementById('login_password').value;
+            await makeRequest('/auth/login', 'POST', { username, password });
+        }
+
+        async function refreshToken() {
+            const refresh_token = getRefreshToken();
+            if (!refresh_token) {
+                displayError(new Error('Refresh token is required'), 'POST /auth/refresh');
+                return;
+            }
+            await makeRequest('/auth/refresh', 'POST', { refresh_token });
+        }
+
+        async function checkUsername() {
+            const username = document.getElementById('check_username').value;
+            await makeRequest(`/auth/check-username?username=${encodeURIComponent(username)}`, 'GET');
+        }
+
+        async function forgotPassword() {
+            const email = document.getElementById('forgot_email').value;
+            await makeRequest('/auth/forgot-password', 'POST', { email });
+        }
+
+        async function verifyOTP() {
+            const email = document.getElementById('verify_email').value;
+            const otp = document.getElementById('verify_otp').value;
+            await makeRequest('/auth/verify-otp', 'POST', { email, otp });
+        }
+
+        async function resetPassword() {
+            const email = document.getElementById('reset_email').value;
+            const otp = document.getElementById('reset_otp').value;
+            const new_password = document.getElementById('reset_password').value;
+            await makeRequest('/auth/reset-password', 'POST', { email, otp, new_password });
+        }
+
+        async function getCurrentUser() {
+            await makeRequest('/me', 'GET', null, true);
+        }
+
+        async function initiateOAuth(provider) {
+            await makeRequest(`/auth/oauth/${provider}`, 'GET');
+        }
+
+        async function healthCheck() {
+            try {
+                const baseUrl = getBaseUrl().replace('/api', '');
+                const response = await fetch(`${baseUrl}/health`);
+                const data = await response.json();
+                displayResponse(data, response.status, 'GET /health');
+            } catch (error) {
+                displayError(error, 'GET /health');
+            }
+        }
+
+        function updateConnectionStatus(status, message) {
+            const statusDiv = document.getElementById('connectionStatus');
+            const dot = statusDiv.querySelector('div');
+            const text = statusDiv.querySelector('span');
+            
+            if (status === 'connected') {
+                statusDiv.className = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-green-100 cursor-pointer';
+                dot.className = 'w-3 h-3 rounded-full bg-green-500';
+                text.className = 'text-sm font-medium text-green-700';
+                text.textContent = message || '✓ Connected';
+            } else if (status === 'error') {
+                statusDiv.className = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-red-100 cursor-pointer';
+                dot.className = 'w-3 h-3 rounded-full bg-red-500';
+                text.className = 'text-sm font-medium text-red-700';
+                text.textContent = message || '✗ Disconnected';
+            } else {
+                statusDiv.className = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-100 cursor-pointer';
+                dot.className = 'w-3 h-3 rounded-full bg-yellow-500 animate-pulse';
+                text.className = 'text-sm font-medium text-yellow-700';
+                text.textContent = message || 'Checking...';
+            }
+            
+            statusDiv.onclick = checkConnectionStatus;
+        }
+
+        async function checkConnectionStatus() {
+            updateConnectionStatus('checking', 'Checking...');
+            try {
+                const baseUrl = getBaseUrl().replace('/api', '');
+                const response = await fetch(`${baseUrl}/health`, { 
+                    method: 'GET',
+                    cache: 'no-cache'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === 'healthy') {
+                        updateConnectionStatus('connected', '✓ Connected');
+                    } else {
+                        updateConnectionStatus('error', '✗ Unhealthy');
+                    }
+                } else {
+                    updateConnectionStatus('error', `✗ Error ${response.status}`);
+                }
+            } catch (error) {
+                updateConnectionStatus('error', '✗ Connection Failed');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkConnectionStatus();
+            setInterval(checkConnectionStatus, 30000);
+        });
+
+        function clearResponse() {
+            document.getElementById('response').textContent = 'Waiting for request...';
+        }
+    </script>
+</body>
+</html>

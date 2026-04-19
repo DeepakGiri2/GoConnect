@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: goconnect
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: goconnect-auth:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 50051
+          name: grpc
+        env:
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-host
+        - name: DATABASE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-port
+        - name: DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-name
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-user
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-password
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-host
+        - name: REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-port
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: jwt-secret
+        - name: OTP_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: otp-secret
+        - name: JWT_ACCESS_EXPIRY
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: jwt-access-expiry
+        - name: JWT_REFRESH_EXPIRY
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: jwt-refresh-expiry
+        - name: OTP_EXPIRY
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: otp-expiry
+        - name: ENV
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: environment
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: log-level
+        - name: AUTH_SERVICE_PORT
+          value: "50051"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "pidof auth-service"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "pidof auth-service"
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: goconnect
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - protocol: TCP
+    port: 50051
+    targetPort: 50051
+  type: ClusterIP

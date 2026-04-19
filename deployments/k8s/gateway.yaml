@@ -1,0 +1,193 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: goconnect
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+      - name: gateway
+        image: goconnect-gateway:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-host
+        - name: DATABASE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-port
+        - name: DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-name
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-user
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-password
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-host
+        - name: REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-port
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: jwt-secret
+        - name: JWT_ACCESS_EXPIRY
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: jwt-access-expiry
+        - name: JWT_REFRESH_EXPIRY
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: jwt-refresh-expiry
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: google-client-id
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: google-client-secret
+        - name: FACEBOOK_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: facebook-client-id
+        - name: FACEBOOK_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: facebook-client-secret
+        - name: GITHUB_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: github-client-id
+        - name: GITHUB_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: github-client-secret
+        - name: GOOGLE_REDIRECT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: google-redirect-url
+        - name: FACEBOOK_REDIRECT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: facebook-redirect-url
+        - name: GITHUB_REDIRECT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: github-redirect-url
+        - name: ENV
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: environment
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: log-level
+        - name: GATEWAY_PORT
+          value: "8080"
+        - name: AUTH_SERVICE_HOST
+          value: "auth-service"
+        - name: AUTH_SERVICE_PORT
+          value: "50051"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: goconnect
+spec:
+  selector:
+    app: gateway
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: gateway-hpa
+  namespace: goconnect
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: gateway
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

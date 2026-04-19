@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoConnect - Mock OAuth Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+        
+        .status.error {
+            background: #ffebee;
+            color: #d32f2f;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .oauth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .oauth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .oauth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .oauth-btn:active {
+            transform: translateY(0);
+        }
+        
+        .oauth-btn svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+        }
+        
+        .google {
+            background: #4285f4;
+        }
+        
+        .google:hover {
+            background: #357ae8;
+        }
+        
+        .facebook {
+            background: #1877f2;
+        }
+        
+        .facebook:hover {
+            background: #0c63d4;
+        }
+        
+        .github {
+            background: #24292e;
+        }
+        
+        .github:hover {
+            background: #1a1e22;
+        }
+        
+        .info-section {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-section h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-section li {
+            color: #666;
+            font-size: 14px;
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-section li:before {
+            content: "✓";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .response-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .response-section.show {
+            display: block;
+        }
+        
+        .response-section pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Mock OAuth Test</h1>
+        <p class="subtitle">Test your GoConnect OAuth integration locally</p>
+        
+        <div id="status" class="status info">
+            ℹ️ Ready to test OAuth flows. Click a button below to start.
+        </div>
+        
+        <div class="oauth-buttons">
+            <button class="oauth-btn google" onclick="testOAuth('google')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Login with Google (Mock)
+            </button>
+            
+            <button class="oauth-btn facebook" onclick="testOAuth('facebook')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                Login with Facebook (Mock)
+            </button>
+            
+            <button class="oauth-btn github" onclick="testOAuth('github')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                Login with GitHub (Mock)
+            </button>
+        </div>
+        
+        <div class="info-section">
+            <h3>📋 Prerequisites</h3>
+            <ul>
+                <li>Mock OAuth server running (ports 9000-9002)</li>
+                <li>Hosts file configured</li>
+                <li>GoConnect services running</li>
+            </ul>
+        </div>
+        
+        <div id="response" class="response-section">
+            <h3 style="margin-bottom: 10px; color: #333;">Response:</h3>
+            <pre id="response-content"></pre>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8080/api/auth';
+        
+        function updateStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status ${type}`;
+            statusEl.innerHTML = message;
+        }
+        
+        function showResponse(data) {
+            const responseEl = document.getElementById('response');
+            const contentEl = document.getElementById('response-content');
+            contentEl.textContent = JSON.stringify(data, null, 2);
+            responseEl.classList.add('show');
+        }
+        
+        async function testOAuth(provider) {
+            updateStatus(`🔄 Initiating ${provider} OAuth flow...`, 'info');
+            
+            try {
+                // Step 1: Get authorization URL
+                const authResponse = await fetch(`${API_BASE}/${provider}`);
+                
+                if (!authResponse.ok) {
+                    throw new Error(`Failed to initiate OAuth: ${authResponse.status}`);
+                }
+                
+                const authData = await authResponse.json();
+                updateStatus(`✓ Authorization URL received. Redirecting...`, 'success');
+                
+                // Step 2: Redirect to OAuth provider (mock)
+                // In a real scenario, this would open the OAuth consent screen
+                // The mock server will auto-redirect back with a code
+                window.location.href = authData.auth_url;
+                
+            } catch (error) {
+                updateStatus(`❌ Error: ${error.message}`, 'error');
+                showResponse({ error: error.message });
+            }
+        }
+        
+        // Handle OAuth callback
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            
+            if (code) {
+                updateStatus('✓ Received authorization code. OAuth login successful!', 'success');
+                showResponse({
+                    code: code,
+                    state: state,
+                    message: 'Mock OAuth flow completed successfully!',
+                    note: 'Check your GoConnect logs for the complete authentication flow.'
+                });
+            }
+        });
+    </script>
+</body>
+</html>

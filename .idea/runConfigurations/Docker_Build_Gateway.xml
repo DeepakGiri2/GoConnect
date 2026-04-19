@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker Build: Gateway" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
+    <deployment type="dockerfile">
+      <settings>
+        <option name="buildCliOptions" value="" />
+        <option name="command" value="" />
+        <option name="containerName" value="goconnect-gateway" />
+        <option name="contextFolderPath" value="$PROJECT_DIR$" />
+        <option name="dockerfilePath" value="build/docker/Dockerfile.gateway" />
+        <option name="imageTag" value="goconnect-gateway:latest" />
+        <option name="sourceFilePath" value="build/docker/Dockerfile.gateway" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

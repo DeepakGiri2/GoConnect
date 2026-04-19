@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker Compose: Production" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="buildBeforeRun" value="true" />
+        <option name="services">
+          <list>
+            <option value="postgres" />
+            <option value="redis" />
+            <option value="auth-service" />
+            <option value="gateway" />
+            <option value="nginx" />
+          </list>
+        </option>
+        <option name="sourceFilePath" value="build/docker/docker-compose.prod.yml" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
