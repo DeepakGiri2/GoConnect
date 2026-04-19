@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -104,9 +105,15 @@ type RetryConfig struct {
 func LoadConfig() (*Config, error) {
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
-	
+
+	// Try to read .env file, but don't fail if it doesn't exist
+	// Environment variables can be loaded via docker-compose or system env
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+		// File not found is acceptable - we'll use environment variables
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok && !os.IsNotExist(err) {
+			// Return error only if it's not a "file not found" error
+			return nil, err
+		}
 	}
 
 	viper.SetDefault("DB_MAX_OPEN_CONNS", 25)
