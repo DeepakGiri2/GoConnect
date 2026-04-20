@@ -27,3 +27,4 @@ go.work.sum
 deployments/k8s/secrets.yaml
 deployments/k8s/secrets.yaml
 deployments/k8s/secrets.yaml
+deployments/k8s/secrets.yaml
