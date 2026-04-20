@@ -6,7 +6,9 @@ echo  Building Docker Images for GoConnect
 echo ===============================================
 echo.
 
-cd /d %~dp0\..
+cd /d %~dp0\..\..
+echo Building from: %CD%
+echo.
 
 echo Step 1: Building Auth Service image...
 docker build -t goconnect-auth:latest -f build\docker\Dockerfile.auth .

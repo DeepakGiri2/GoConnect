@@ -1,0 +1,174 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service-debug
+  namespace: goconnect
+  labels:
+    app: auth-service-debug
+    purpose: debugging
+spec:
+  replicas: 1  # Keep at 1 for predictable debugging
+  selector:
+    matchLabels:
+      app: auth-service-debug
+  template:
+    metadata:
+      labels:
+        app: auth-service-debug
+    spec:
+      nodeSelector:
+        node-role: services
+      containers:
+      - name: auth-service
+        image: goconnect-auth:debug
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 50051
+          name: grpc
+        - containerPort: 40000
+          name: debug
+        env:
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-host
+        - name: DATABASE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-port
+        - name: DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-name
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-user
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: database-password
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-host
+        - name: REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-port
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: jwt-secret
+        - name: OTP_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: otp-secret
+        - name: JWT_ACCESS_EXPIRY
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: jwt-access-expiry
+        - name: JWT_REFRESH_EXPIRY
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: jwt-refresh-expiry
+        - name: OTP_EXPIRY
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: otp-expiry
+        - name: ENV
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: environment
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: goconnect-config
+              key: log-level
+        - name: AUTH_SERVICE_PORT
+          value: "50051"
+        - name: TOTP_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: totp-encryption-key
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: redis-password
+        - name: SMTP_HOST
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: smtp-host
+        - name: SMTP_PORT
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: smtp-port
+        - name: SMTP_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: smtp-username
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: smtp-password
+        - name: FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: from-email
+        - name: FROM_NAME
+          valueFrom:
+            secretKeyRef:
+              name: goconnect-secrets
+              key: from-name
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        securityContext:
+          capabilities:
+            add:
+            - SYS_PTRACE
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service-debug
+  namespace: goconnect
+spec:
+  type: NodePort
+  selector:
+    app: auth-service-debug
+  ports:
+  - name: grpc
+    protocol: TCP
+    port: 50051
+    targetPort: 50051
+    nodePort: 30051
+  - name: debug
+    protocol: TCP
+    port: 40000
+    targetPort: 40000
+    nodePort: 30041

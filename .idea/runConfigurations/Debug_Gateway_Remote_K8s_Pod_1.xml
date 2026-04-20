@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Debug Gateway Remote K8s (Pod 1)" type="GoRemoteDebugConfigurationType" factoryName="Go Remote">
+    <option name="disconnectOption" value="ASK" />
+    <method v="2" />
+    <option name="port" value="30040" />
+    <option name="host" value="localhost" />
+  </configuration>
+</component>

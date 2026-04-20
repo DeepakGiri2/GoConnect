@@ -1,39 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gateway
+  name: gateway-debug
   namespace: goconnect
+  labels:
+    app: gateway-debug
+    purpose: debugging
 spec:
-  replicas: 2
+  replicas: 1  # Keep at 1 for predictable debugging
   selector:
     matchLabels:
-      app: gateway
+      app: gateway-debug
   template:
     metadata:
       labels:
-        app: gateway
+        app: gateway-debug
     spec:
       nodeSelector:
         node-role: services
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - gateway
-              topologyKey: kubernetes.io/hostname
       containers:
       - name: gateway
-        image: goconnect-gateway:latest
+        image: goconnect-gateway:debug
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
           name: http
+        - containerPort: 40000
+          name: debug
         env:
         - name: DATABASE_HOST
           valueFrom:
@@ -175,57 +168,30 @@ spec:
             memory: "256Mi"
             cpu: "250m"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
+            memory: "1Gi"
+            cpu: "1000m"
+        securityContext:
+          capabilities:
+            add:
+            - SYS_PTRACE
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: gateway-service
+  name: gateway-debug-service
   namespace: goconnect
 spec:
+  type: NodePort
   selector:
-    app: gateway
+    app: gateway-debug
   ports:
-  - protocol: TCP
+  - name: http
+    protocol: TCP
     port: 80
     targetPort: 8080
-  type: ClusterIP
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: gateway-hpa
-  namespace: goconnect
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: gateway
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+    nodePort: 30081
+  - name: debug
+    protocol: TCP
+    port: 40000
+    targetPort: 40000
+    nodePort: 30040

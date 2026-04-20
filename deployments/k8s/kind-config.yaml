@@ -19,6 +19,12 @@ nodes:
   - containerPort: 30888
     hostPort: 8888
     protocol: TCP
+  - containerPort: 30090
+    hostPort: 9090
+    protocol: TCP
+  - containerPort: 30300
+    hostPort: 3000
+    protocol: TCP
 - role: worker
   kubeadmConfigPatches:
   - |

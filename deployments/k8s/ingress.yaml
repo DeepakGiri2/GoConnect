@@ -3,19 +3,10 @@ kind: Ingress
 metadata:
   name: goconnect-ingress
   namespace: goconnect
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - your-domain.com
-    secretName: goconnect-tls
+  ingressClassName: traefik
   rules:
-  - host: your-domain.com
-    http:
+  - http:
       paths:
       - path: /
         pathType: Prefix
