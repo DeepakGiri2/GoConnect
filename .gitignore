@@ -23,8 +23,6 @@ go.work.sum
 
 # env file
 .env
-.env
-deployments/k8s/secrets.yaml
-deployments/k8s/secrets.yaml
-deployments/k8s/secrets.yaml
+
+# Kubernetes secrets
 deployments/k8s/secrets.yaml
